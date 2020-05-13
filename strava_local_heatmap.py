@@ -32,7 +32,7 @@ import matplotlib.pyplot as plt
 
 # parameters
 PLT_COLORMAP = 'hot' # matplotlib color map (from https://matplotlib.org/examples/color/colormaps_reference.html)
-MAX_TILE_COUNT = 100 # maximum number of OSM tiles to download
+MAX_TILE_COUNT = 10000 # maximum number of OSM tiles to download
 
 # constants
 OSM_TILE_SIZE = 256 # OSM tile size in pixels
@@ -154,6 +154,8 @@ def main(args):
         print('ERROR no data matching '+gpx_dir+'/'+gpx_glob+' with --gpx-year '+gpx_year)
         quit()
 
+    # print(lat_lon_data)
+
     print('processing GPX data...')
 
     lat_lon_data = np.array(lat_lon_data) # convert list to NumPy array
@@ -176,6 +178,7 @@ def main(args):
     x_tile_max, y_tile_min = deg2num(lat_max, lon_max, heatmap_zoom)
 
     tile_count = (x_tile_max-x_tile_min+1)*(y_tile_max-y_tile_min+1) # total number of tiles
+    print('Tile Count: ' + str(tile_count))
 
     if tile_count > MAX_TILE_COUNT:
         print('ERROR zoom value too high')
@@ -195,7 +198,7 @@ def main(args):
             if not glob.glob(tile_file): # check if tile already downloaded
                 i += 1
 
-                print('downloading tile '+str(i)+'/'+str(tile_count)+'...')
+                print('downloading tile '+str(i)+'/'+str(tile_count)+'('+str(x)+':'+str(y)+')...')
 
                 if not download_tile(tile_url, tile_file):
                     tile_image = np.ones((OSM_TILE_SIZE, OSM_TILE_SIZE, 3))
