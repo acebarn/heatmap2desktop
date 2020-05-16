@@ -1,24 +1,3 @@
-# Copyright (c) 2018 Remi Salmon
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
-# imports
 import os
 import re
 import glob
@@ -100,17 +79,17 @@ def download_tile(tile_url, tile_file): # download image from url to file
 
     return(status)
 
-def main(args):
+def generate_heatmap(gpx_directory, year, boundaries, output_file, zoom):
     # parameters
-    gpx_dir = args.dir # string
-    gpx_glob = args.glob # string
-    gpx_year = args.year # string
-    lat_bound_min, lat_bound_max, lon_bound_min, lon_bound_max = args.bound # int
-    heatmap_file = args.file # string
-    heatmap_zoom = args.zoom # int
-    sigma_pixels = args.sigma # int
-    use_csv = args.csv # bool
-    use_cumululative_distribution = not args.nocdist # bool
+    gpx_dir = gpx_directory # string
+    gpx_glob = '*.gpx'
+    gpx_year = year # string
+    lat_bound_min, lat_bound_max, lon_bound_min, lon_bound_max = boundaries # int
+    heatmap_file = output_file # string
+    heatmap_zoom = zoom # int
+    sigma_pixels = 1 # int
+    use_csv = False # bool
+    use_cumululative_distribution = False # bool
 
     if heatmap_zoom > OSM_MAX_ZOOM:
         heatmap_zoom = OSM_MAX_ZOOM
@@ -283,42 +262,4 @@ def main(args):
 
     plt.imsave(heatmap_file, supertile_overlay)
 
-    # save csv file
-    if use_csv:
-        csv_file = os.path.splitext(heatmap_file)[0]+'.csv'
-
-        print('saving '+csv_file+'...')
-
-        with open(csv_file, 'w') as file:
-            file.write('lat,lon,intensity\n')
-
-            for i in range(data.shape[0]):
-                for j in range(data.shape[1]):
-                    if data[i, j] > 0.1:
-                        x = x_tile_min+j/OSM_TILE_SIZE
-                        y = y_tile_min+i/OSM_TILE_SIZE
-
-                        lat, lon = num2deg(x, y, heatmap_zoom)
-
-                        file.write(str(lat)+','+str(lon)+','+str(data[i, j])+'\n')
-
     print('done')
-
-if __name__ == '__main__':
-    # command line parameters
-    parser = argparse.ArgumentParser(description = 'Generate a local heatmap from Strava GPX files', epilog = 'Report issues to https://github.com/remisalmon/strava-local-heatmap')
-
-    parser.add_argument('--gpx-dir', dest = 'dir', default = 'gpx', help = 'GPX files directory  (default: gpx)')
-    parser.add_argument('--gpx-year', dest = 'year', default = 'all', help = 'GPX files year filter (default: all)')
-    parser.add_argument('--gpx-filter', dest = 'glob', default = '*.gpx', help = 'GPX files glob filter (default: *.gpx)')
-    parser.add_argument('--gpx-bound', dest = 'bound', type = float, nargs = 4, default = [-90, +90, -180, +180], help = 'heatmap bounding box coordinates as lat_min, lat_max, lon_min, lon_max (default: -90 +90 -180 +180)')
-    parser.add_argument('--output', dest = 'file', default = 'heatmap.png', help = 'heatmap name (default: heatmap.png)')
-    parser.add_argument('--zoom', dest = 'zoom', type = int, default = 10, help = 'heatmap zoom level 0-19 (default: 10)')
-    parser.add_argument('--sigma', dest = 'sigma', type = int, default = 1, help = 'heatmap Gaussian kernel sigma in pixels (default: 1)')
-    parser.add_argument('--no-cdist', dest = 'nocdist', action = 'store_true', help = 'disable cumulative distribution of trackpoints (uniform distribution)')
-    parser.add_argument('--csv', dest = 'csv', action = 'store_true', help = 'also save the heatmap data to a CSV file')
-
-    args = parser.parse_args()
-
-    # run main
-    main(args)

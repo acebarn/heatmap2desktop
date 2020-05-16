@@ -2,6 +2,8 @@ gpx/*.gpx
 tiles/*.png
 virtualenv
 *.png
+config.yml
+*.token
 
 
 # Created by https://www.gitignore.io/api/code,python
