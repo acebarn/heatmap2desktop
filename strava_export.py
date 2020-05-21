@@ -15,6 +15,8 @@ TOKEN_URL = "https://www.strava.com/oauth/token"
 CALLBACK_URL = "http://localhost"
 TEST_API_URL = "https://www.strava.com/api/v3/athlete/"
 
+EXPORT_DIRECTORY = "gpx"
+
     
 def authorize():
 
@@ -79,22 +81,40 @@ def get_access_token(): # Returns Token response Json Object
     return json.loads(access_token_response.text)
     
 
-def get_activities(token):
-    response = requests.get("https://www.strava.com/api/v3/athlete/activities/", headers={'Authorization': 'Bearer ' + token}, params={"per_page": 200}, verify=False)
-    return json.loads(response.text)
+def get_activity_ids(token, count):
+    print("Retrieving activities from Strava...")
+    activity_ids = []
+
+    for i in range(0, count // 200 + 1):
+        fetch_size = 200
+        if count <= fetch_size * i: #TODO Paging korrigieren
+            fetch_size = count
+        response = requests.get("https://www.strava.com/api/v3/athlete/activities/", headers={'Authorization': 'Bearer ' + token}, params={"page": i+1, "per_page": fetch_size}, verify=False)
+        for activity in json.loads(response.text):
+            activity_ids.append(str(activity["id"]))
+    print("Found %s activities" % len(activity_ids) )
+    return activity_ids
 
 def get_activity_stream(token, id):
-    print(id)
+    # check if activity has already been downloaded
+    if os.path.exists(EXPORT_DIRECTORY + "/" + id):
+        print("activity "+ id + " already exists")
+        return
+    # download activity stream
+    print("Downloading activity %s" % id)
+    response = requests.get("https://www.strava.com/api/v3/activities/"+id+"/streams", headers={'Authorization': 'Bearer ' + token}, params={"keys": "latlng"}, verify=False)
+    return json.loads(response.text)
 
-def export():
+def export(count):
+    if not os.path.isdir(EXPORT_DIRECTORY):
+        os.makedirs(EXPORT_DIRECTORY)
     token = authorize()
-    activities = get_activities(token)
-    for activity in activities:
-        id = activity["id"]
-        get_activity_stream(token,id)
-
-
-
+    activities = get_activity_ids(token, count)
+    print("Downloading activity streams...")
+    for activity_id in activities:
+        activity_json = get_activity_stream(token, activity_id)
+        with open(EXPORT_DIRECTORY + "/" + activity_id + ".json", "w+") as activity_file:
+            json.dump(activity_json, activity_file)
 
 if __name__ == '__main__':
     export()

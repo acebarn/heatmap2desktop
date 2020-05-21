@@ -5,6 +5,7 @@ import time
 import argparse
 import urllib.error
 import urllib.request
+import json
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -79,11 +80,10 @@ def download_tile(tile_url, tile_file): # download image from url to file
 
     return(status)
 
-def generate_heatmap(gpx_directory, year, boundaries, output_file, zoom):
+def generate_heatmap(gpx_directory, boundaries, output_file, zoom):
     # parameters
     gpx_dir = gpx_directory # string
-    gpx_glob = '*.gpx'
-    gpx_year = year # string
+    gpx_glob = '*.json'
     lat_bound_min, lat_bound_max, lon_bound_min, lon_bound_max = boundaries # int
     heatmap_file = output_file # string
     heatmap_zoom = zoom # int
@@ -112,28 +112,18 @@ def generate_heatmap(gpx_directory, year, boundaries, output_file, zoom):
     lat_lon_data = [] # initialize latitude, longitude list
 
     for i in range(len(gpx_files)):
-        print('reading GPX file '+str(i+1)+'/'+str(len(gpx_files))+'...')
+        print('reading coordinate stream file '+str(i+1)+'/'+str(len(gpx_files))+'...')
 
         with open(gpx_files[i]) as file:
-            for line in file:
-                if '<time' in line: # activity date
-                    tmp = re.findall('[0-9]{4}', line)
+            current_data = json.load(file)
+            coords = current_data[0]["data"]
+            for coord_pair in coords:
+                lat_lon_data.append([float(coord_pair[0]), float(coord_pair[1])])
 
-                    if gpx_year in [tmp[0], 'all']:
-                        for line in file:
-                            if '<trkpt' in line: # trackpoint latitude, longitude
-                                tmp = re.findall('-?[0-9]*[.]?[0-9]+', line)
-
-                                lat_lon_data.append([float(tmp[0]), float(tmp[1])])
-
-                    else:
-                        break
 
     if not lat_lon_data:
-        print('ERROR no data matching '+gpx_dir+'/'+gpx_glob+' with --gpx-year '+gpx_year)
+        print('ERROR no matching data found')
         quit()
-
-    # print(lat_lon_data)
 
     print('processing GPX data...')
 

@@ -1,4 +1,5 @@
 gpx/*.gpx
+gpx/*.json
 tiles/*.png
 virtualenv
 *.png

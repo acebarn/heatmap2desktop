@@ -1,16 +1,16 @@
 import argparse
 import heatmap_generator as hmg
+import strava_export as strex
 
 
 def main():
     print("Starting heatmap generation")
 
-    #Download activities from strava
-
-    #store activities in gpx folder
+    #Download n activities from strava 
+    strex.export(10)
 
     #call heatmap generator to produce png
-    hmg.generate_heatmap("gpx", "all", [48.667,49.43,7.49,9.12],"output",13)
+    hmg.generate_heatmap("gpx",[48.667,49.43,7.49,9.12],"output",13)
     
 
     print("finished!")
