@@ -112,7 +112,7 @@ def generate_heatmap(gpx_directory, boundaries, output_file, zoom):
     lat_lon_data = [] # initialize latitude, longitude list
 
     for i in range(len(gpx_files)):
-        print('reading coordinate stream file '+str(i+1)+'/'+str(len(gpx_files))+'...')
+        print('reading coordinate stream file '+str(i+1)+'/'+str(len(gpx_files))+' ('+gpx_files[i]+')...')
 
         with open(gpx_files[i]) as file:
             current_data = json.load(file)
