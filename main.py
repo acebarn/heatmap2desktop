@@ -25,9 +25,8 @@ def main(args):
 if __name__ == '__main__':
     # command line parameters
     parser = argparse.ArgumentParser(
-        description='Generate a local heatmap from Strava GPX files',
-        epilog=
-        'Report issues to https://github.com/remisalmon/strava-local-heatmap')
+        description='Generate customizable desktop background image to show heatmap of recent strava activities',
+        )
 
     parser.add_argument(
         '--count',
@@ -45,7 +44,7 @@ if __name__ == '__main__':
         nargs=4,
         default=[48, 50, 7, 10], #Karlsruhe
         help=
-        'heatmap bounding box coordinates as lat_min, lat_max, lon_min, lon_max (default: -90 +90 -180 +180)'
+        'heatmap bounding box coordinates as LAT_BOTTOM, LAT_TOP, LON_LEFT, LON_RIGHT, (default: 48, 50, 7, 10 => Karlsruhe, Germany)'
     )
     parser.add_argument('--output',
                         dest='output',

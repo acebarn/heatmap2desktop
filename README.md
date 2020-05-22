@@ -1,79 +1,51 @@
-# strava_local_heatmap.py
+# Strava Heatmap2Desktop
 
-Python script to reproduce the Strava Global Heatmap ([www.strava.com/heatmap](https://www.strava.com/heatmap)) with local GPX data
-
-Optimized for cycling activities :bicyclist:
-
-**Check out [github.com/remisalmon/Strava-local-heatmap-browser](https://github.com/remisalmon/Strava-local-heatmap-browser) for an interactive version**
-
-## Features
-
-* Minimal Python dependencies (matplotlib+numpy)
-* Fast (3x faster than `gpxpy.parse()`)
-
-## Usage
-
-* Download your GPX files from Strava and add them to the `gpx` folder  
-(see https://support.strava.com/hc/en-us/articles/216918437-Exporting-your-Data-and-Bulk-Export)
-* Run `python3 strava_local_heatmap.py`
-* The heatmap is saved to `heatmap.png`
+Python tool to generate customizable desktop background image to show heatmap of recent activities
 
 ### Command-line options
 
 ```
-usage: strava_local_heatmap.py [-h] [--gpx-dir DIR] [--gpx-year YEAR]
-                               [--gpx-filter GLOB]
-                               [--gpx-bound BOUND BOUND BOUND BOUND]
-                               [--output FILE] [--zoom ZOOM] [--sigma SIGMA]
-                               [--no-cdist] [--csv]
+usage: main.py  [-h] 
+                [--count COUNT] 
+                [--gpx-dir DIR]
+                [--bounds LAT_BOTTOM LAT_TOP LON_LEFT LON_RIGHT] 
+                [--output OUTPUT]      
+                [--zoom ZOOM]
+
+Generate customizable desktop background image to show heatmap of recent     
+strava activities
 
 optional arguments:
   -h, --help            show this help message and exit
+  --count COUNT         Number of recent activities to include (default: 30) 
   --gpx-dir DIR         GPX files directory (default: gpx)
-  --gpx-year YEAR       GPX files year filter (default: all)
-  --gpx-filter GLOB     GPX files glob filter (default: *.gpx)
-  --gpx-bound BOUND BOUND BOUND BOUND
+  --bounds BOUNDS BOUNDS BOUNDS BOUNDS
                         heatmap bounding box coordinates as lat_min, lat_max,
-                        lon_min, lon_max (default: -90 +90 -180 +180)
-  --output FILE         heatmap name (default: heatmap.png)
-  --zoom ZOOM           heatmap zoom level 0-19 (default: 10)
-  --sigma SIGMA         heatmap Gaussian kernel sigma in pixels (default: 1)
-  --no-cdist            disable cumulative distribution of trackpoints
-                        (uniform distribution)
-  --csv                 also save the heatmap data to a CSV file
+                        lon_min, lon_max (default: 48, 50, 7, 10 => Karlsruhe,
+                        Germany)
+  --output OUTPUT       heatmap name (default: heatmap.png)
+  --zoom ZOOM           heatmap zoom level 0-19 (default: 13)
 ```
 
  :warning: `--zoom` is OpenStreetMap's zoom level, first number after `map=` in [www.openstreetmap.org/#map=](https://www.openstreetmap.org)
 
 Example:  
-`strava_local_heatmap.py --gpx-dir ~/GPX --gpx-year 2018 --gpx-filter *Ride*.gpx --zoom 13`
-
-For an explanation on the cumulative distribution function, see:  
-https://medium.com/strava-engineering/the-global-heatmap-now-6x-hotter-23fc01d301de
-
-## Output
-
-**heatmap.png**  
-![heatmap_zoom.png](output_heatmap.png)
-
-**heatmap.csv**  
-See https://umap.openstreetmap.fr/en/map/demo-heatmap_261644 (contribution by [@badele](https://github.com/badele))
+`python3 main.py --count 300 --output myheatmap.png --bounds 48.667 49.43 7.49 9.12 --zoom 10 --gpx-dir ~/gpx`
 
 ## Setup
 
 Run `bash setup.sh && source virtualenv/bin/activate`
 
+Create a strava App here: 
+Once you got your `client-id` and `client-secret` paste them into the provided `config.yml` file.
+
 ### Python dependencies
 
 ```
-matplotlib==3.0.2
-numpy==1.15.4
+matplotlib==3.1.1
+numpy==1.17.3
+certifi==2020.4.5.1
+urllib3==1.25.9
+oauth2==1.9.0.post1
+pyyaml==5.3.1
 ```
-
-### Other dependencies
-
-Arch Linux (see [here](https://github.com/remisalmon/strava-local-heatmap/pull/3#issuecomment-443541311)): `sudo pacman -S tk`
-
-## Projects using strava_local_heatmap.py
-
-[JeSuisUnDesDeux](https://gitlab.com/JeSuisUnDesDeux/jesuisundesdeux/tree/master/datas/traces)
