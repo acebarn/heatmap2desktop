@@ -48,7 +48,7 @@ oauth2==1.9.0.post1
 pyyaml==5.3.1
 ```
 
-### Troubleshooting
+## Troubleshooting
 
-## Authorization Errors with the Strava API
+### Authorization Errors with the Strava API
 Delete the `access.token` file
