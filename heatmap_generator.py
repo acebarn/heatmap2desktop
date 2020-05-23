@@ -1,17 +1,16 @@
 import os
 import re
-import glob
 import time
 import argparse
 import urllib.error
 import urllib.request
 import json
+import glob
 
 import numpy as np
 import matplotlib.pyplot as plt
 
 # parameters
-PLT_COLORMAP = 'hot' # matplotlib color map (from https://matplotlib.org/examples/color/colormaps_reference.html)
 MAX_TILE_COUNT = 10000 # maximum number of OSM tiles to download
 
 # constants
@@ -80,10 +79,10 @@ def download_tile(tile_url, tile_file): # download image from url to file
 
     return(status)
 
-def generate_heatmap(gpx_directory, boundaries, output_file, zoom):
+def generate_heatmap(activitiy_ids, gpx_directory, boundaries, output_file, zoom, color):
     # parameters
     gpx_dir = gpx_directory # string
-    gpx_glob = '*.json'
+    gpx_suffix = 'json'
     lat_bound_min, lat_bound_max, lon_bound_min, lon_bound_max = boundaries # int
     heatmap_file = output_file # string
     heatmap_zoom = zoom # int
@@ -95,17 +94,20 @@ def generate_heatmap(gpx_directory, boundaries, output_file, zoom):
         heatmap_zoom = OSM_MAX_ZOOM
 
     try:
-        cmap = plt.get_cmap(PLT_COLORMAP)
+        cmap = plt.get_cmap(color)
 
     except:
-        print('ERROR colormap '+PLT_COLORMAP+' does not exists')
+        print('ERROR colormap '+color+' does not exists')
         quit()
 
     # find GPX files
-    gpx_files = glob.glob(gpx_dir+'/'+gpx_glob)
+    gpx_files = []
+    for file in os.listdir(gpx_dir):
+        if file.split('.')[0] in activitiy_ids and file.endswith('.' + gpx_suffix):
+            gpx_files.append(gpx_dir + '/' + file)
 
     if not gpx_files:
-        print('ERROR no data matching '+gpx_dir+'/'+gpx_glob)
+        print('ERROR no data matching '+gpx_dir+'/.'+gpx_suffix)
         quit()
 
     # read GPX files
@@ -134,7 +136,7 @@ def generate_heatmap(gpx_directory, boundaries, output_file, zoom):
     lat_lon_data = lat_lon_data[np.logical_and(lat_lon_data[:, 1] > lon_bound_min, lat_lon_data[:, 1] < lon_bound_max), :]
 
     if lat_lon_data.size == 0:
-        print('ERROR no matching '+gpx_dir+'/'+gpx_glob+' with --gpx-bound '+' '.join(str(s) for s in [lat_bound_min, lat_bound_max, lon_bound_min, lon_bound_max]))
+        print('ERROR no matching '+gpx_dir+'/'+gpx_suffix+' with --gpx-bound '+' '.join(str(s) for s in [lat_bound_min, lat_bound_max, lon_bound_min, lon_bound_max]))
         quit()
 
     # find min, max tile x,y coordinates
@@ -245,11 +247,17 @@ def generate_heatmap(gpx_directory, boundaries, output_file, zoom):
         supertile_overlay[:, :, c] = (1.0-data_color[:, :, c])*supertile[:, :, c]+data_color[:, :, c] # fill color overlay
 
     # save image
-    if not os.path.splitext(heatmap_file)[1] == '.png': # make sure we use PNG
-        heatmap_file = os.path.splitext(heatmap_file)[0]+'.png'
 
-    print('saving '+heatmap_file+'...')
+    path, file = os.path.split(heatmap_file)
+    if path is not "":
+        print("Creating directory %s" % path)
+        os.makedirs(path, exist_ok=True)
 
-    plt.imsave(heatmap_file, supertile_overlay)
+    if not os.path.splitext(file)[1] == '.png': # make sure we use PNG
+        file = os.path.splitext(file)[0]+'.png'
+
+    print('saving '+file+'...')
+
+    plt.imsave(path + os.sep + file, supertile_overlay)
 
     print('done')

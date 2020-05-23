@@ -9,15 +9,17 @@ import urllib3
 import oauth2
 import yaml
 
-with open("config.yml", "r") as configfile:
-    config = yaml.load(configfile)
 
 AUTHORIZE_URL = "https://www.strava.com/oauth/authorize"
 TOKEN_URL = "https://www.strava.com/oauth/token"
 CALLBACK_URL = "http://localhost"
 TEST_API_URL = "https://www.strava.com/api/v3/athlete/"
+TOKEN_FILE  = "access.token"
 
 ACTIVITY_FETCH_SIZE = 200
+
+with open("config.yml", "r") as configfile:
+    config = yaml.load(configfile, Loader=yaml.FullLoader)
 
 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
@@ -28,13 +30,13 @@ def authorize():
     refresh_token = None
 
     #check if access token is present
-    if not os.path.exists("access.token"):
+    if not os.path.exists(TOKEN_FILE):
         token_obj = get_access_token()
-        with open("access.token", "w") as tokenfile:
+        with open(TOKEN_FILE, "w") as tokenfile:
             json.dump(token_obj, tokenfile)
 
     #read present tokens from store
-    with open("access.token") as json_file:
+    with open(TOKEN_FILE) as json_file:
         tokens = json.load(json_file)
         access_token = tokens["access_token"]
         refresh_token = tokens["refresh_token"]
@@ -47,10 +49,10 @@ def authorize():
     test_token_response_obj = test_token_response.data.decode('utf-8')
 
     if test_token_response.status == 401:
-        print("Error while testing token validity")
-        print(test_token_response_obj)
-        sys.exit()
-        #TODO handle expired token refresh
+        print("Token is expired. Trying to refresh Token")
+        refresh_result = send_refresh_token(refresh_token)
+        with open(TOKEN_FILE, "w") as tokenfile:
+            json.dump(refresh_result, tokenfile)
 
     print("finished authorizing")
     return access_token
@@ -83,6 +85,20 @@ def get_access_token():  # Returns Token response Json Object
     print('body: ' + access_token_response.data.decode('utf-8'))
 
     return json.loads(access_token_response.data.decode('utf-8'))
+
+def send_refresh_token(refresh_token):
+    client_id = config["strava_client_id"]
+    client_secret = config["strava_client_secret"]
+    data = {
+        'grant_type': 'refresh_token',
+        'refresh_token': refresh_token,
+        'client_id': client_id,
+        'client_secret': client_secret
+    }
+    print("requesting access token")
+    refresh_token_response = http.request("POST", TOKEN_URL, fields=data)
+
+    return json.loads(refresh_token_response.data.decode('utf-8'))
 
 
 def get_activity_ids(token, count):
@@ -150,6 +166,7 @@ def export(count, export_dir):
             with open(export_dir + "/" + activity_id + ".json",
                       "w+") as activity_file:
                 json.dump(activity_json, activity_file)
+    return activities
 
 
 

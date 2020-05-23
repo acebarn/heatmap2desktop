@@ -30,13 +30,13 @@ optional arguments:
  :warning: `--zoom` is OpenStreetMap's zoom level, first number after `map=` in [www.openstreetmap.org/#map=](https://www.openstreetmap.org)
 
 Example:  
-`python3 main.py --count 300 --output myheatmap.png --bounds 48.667 49.43 7.49 9.12 --zoom 10 --gpx-dir ~/gpx`
+`python3 main.py --count 100 --output myheatmap.png --bounds 48.667 49.43 7.49 9.12 --zoom 12 --gpx-dir ~/gpx`
 
 ## Setup
 
 Run `bash setup.sh && source virtualenv/bin/activate`
 
-Create a strava App here: 
+Create a strava App here: http://strava.com/settings/api
 Once you got your `client-id` and `client-secret` paste them into the provided `config.yml` file.
 
 ### Python dependencies

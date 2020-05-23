@@ -11,13 +11,13 @@ def main(args):
     _bounds = args.bounds
     _output = args.output
     _zoom = args.zoom
+    _color = args.color
 
     #Download n activities from strava to specified location
-    strex.export(int(_count), _dir)
+    activities_to_consider = strex.export(int(_count), _dir)
 
     #call heatmap generator to produce png
-    # hmg.generate_heatmap("gpx",[48.667,49.43,7.49,9.12],"output",13)
-    hmg.generate_heatmap(_dir, _bounds, _output, _zoom)
+    hmg.generate_heatmap(activities_to_consider, _dir, _bounds, _output, _zoom, _color)
 
     print("finished!")
 
@@ -48,13 +48,18 @@ if __name__ == '__main__':
     )
     parser.add_argument('--output',
                         dest='output',
-                        default='heatmap.png',
-                        help='heatmap name (default: heatmap.png)')
+                        default='output/heatmap.png',
+                        help='heatmap name (default: output/heatmap.png)')
     parser.add_argument('--zoom',
                         dest='zoom',
                         type=int,
                         default=13,
                         help='heatmap zoom level 0-19 (default: 13)')
+
+    parser.add_argument('--color',
+                        dest='color',
+                        default='hot',
+                        help='matplotlib color map (from https://matplotlib.org/examples/color/colormaps_reference.html)')
 
     args = parser.parse_args()
 
