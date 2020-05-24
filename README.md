@@ -14,6 +14,7 @@ main.py [-h]
         [--bounds LAT_BOTTOM LAT_TOP LON_LEFT LON_RIGHT] 
         [--output OUTPUT]      
         [--zoom ZOOM]
+        [--color COLOR]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -25,6 +26,7 @@ optional arguments:
                         Germany)
   --output OUTPUT       heatmap name (default: heatmap.png)
   --zoom ZOOM           heatmap zoom level 0-19 as used on openstreetmap.org (default: 13)
+  --color COLOR         matplotlib color code (default: hot) find more here: https://matplotlib.org/examples/color/colormaps_reference.html
 ```
 
 Example:  
