@@ -53,6 +53,7 @@ def authorize():
         refresh_result = send_refresh_token(refresh_token)
         with open(TOKEN_FILE, "w") as tokenfile:
             json.dump(refresh_result, tokenfile)
+        access_token = refresh_result["access_token"]
 
     print("finished authorizing")
     return access_token
