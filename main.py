@@ -12,12 +12,16 @@ def main(args):
     _output = args.output
     _zoom = args.zoom
     _color = args.color
+    _lat_min= args.lat_min
+    _lat_max= args.lat_max
+    _lon_min= args.lon_min
+    _lon_max= args.lon_max
 
     #Download n activities from strava to specified location
     activities_to_consider = strex.export(int(_count), _dir)
 
     #call heatmap generator to produce png
-    hmg.generate_heatmap(activities_to_consider, _dir, _bounds, _output, _zoom, _color)
+    hmg.generate_heatmap(activities_to_consider, _dir, _bounds, _output, _zoom, _color, _lat_min, _lat_max, _lon_min, _lon_max)
 
     print("finished!")
 
@@ -42,9 +46,9 @@ if __name__ == '__main__':
         dest='bounds',
         type=float,
         nargs=4,
-        default=[48, 50, 7, 10], #Karlsruhe
+        default=[48, 50, 7, 9], #Karlsruhe
         help=
-        'heatmap bounding box coordinates as LAT_BOTTOM, LAT_TOP, LON_LEFT, LON_RIGHT, (default: 48, 50, 7, 10 => Karlsruhe, Germany)'
+        'heatmap bounding box coordinates as LAT_BOTTOM, LAT_TOP, LON_LEFT, LON_RIGHT, (default: 48, 50, 7, 9 => Karlsruhe, Germany)'
     )
     parser.add_argument('--output',
                         dest='output',
@@ -60,6 +64,34 @@ if __name__ == '__main__':
                         dest='color',
                         default='hot',
                         help='matplotlib color map (from https://matplotlib.org/examples/color/colormaps_reference.html)')
+
+    parser.add_argument('--lat-min',
+                        dest='lat_min',
+                        type=float,
+                        default=None,
+                        help='minimum latitute tiles shown on map'
+                        )        
+
+    parser.add_argument('--lon-min',
+                        dest='lon_min',
+                        type=float,
+                        default=None,
+                        help='minimum longitude tiles shown on map'
+                        )     
+
+    parser.add_argument('--lat-max',
+                        dest='lat_max',
+                        type=float,
+                        default=None,
+                        help='maximum latitute tiles shown on map'
+                        )     
+
+    parser.add_argument('--lon-max',
+                        dest='lon_max',
+                        type=float,
+                        default=None,
+                        help='maximum longitude tiles shown on map'
+                        )                     
 
     args = parser.parse_args()
 

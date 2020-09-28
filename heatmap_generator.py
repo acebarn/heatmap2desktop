@@ -79,7 +79,7 @@ def download_tile(tile_url, tile_file): # download image from url to file
 
     return(status)
 
-def generate_heatmap(activitiy_ids, gpx_directory, boundaries, output_file, zoom, color):
+def generate_heatmap(activitiy_ids, gpx_directory, boundaries, output_file, zoom, color, lat_min = None, lat_max = None, lon_min = None, lon_max = None):
     # parameters
     gpx_dir = gpx_directory # string
     gpx_suffix = 'json'
@@ -140,10 +140,17 @@ def generate_heatmap(activitiy_ids, gpx_directory, boundaries, output_file, zoom
         quit()
 
     # find min, max tile x,y coordinates
-    lat_min = lat_lon_data[:, 0].min()
-    lat_max = lat_lon_data[:, 0].max()
-    lon_min = lat_lon_data[:, 1].min()
-    lon_max = lat_lon_data[:, 1].max()
+    if lat_min is None:
+        lat_min = lat_lon_data[:, 0].min()
+    
+    if lat_max is None:
+        lat_max = lat_lon_data[:, 0].max()
+
+    if lon_min is None:
+        lon_min = lat_lon_data[:, 1].min()
+        
+    if lon_max is None:
+        lon_max = lat_lon_data[:, 1].max()
 
     x_tile_min, y_tile_max = deg2num(lat_min, lon_min, heatmap_zoom)
     x_tile_max, y_tile_min = deg2num(lat_max, lon_max, heatmap_zoom)

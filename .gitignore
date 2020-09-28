@@ -2,6 +2,7 @@ gpx/*.gpx
 gpx/*.json
 tiles/*.png
 virtualenv
+venv
 *.png
 config.yml
 *.token
